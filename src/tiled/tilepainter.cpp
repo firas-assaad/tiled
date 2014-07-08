@@ -47,7 +47,7 @@ Cell TilePainter::cellAt(int x, int y) const
 
 void TilePainter::setCell(int x, int y, const Cell &cell)
 {
-    const QRegion &selection = mMapDocument->tileSelection();
+    const QRegion &selection = mMapDocument->selectedArea();
     if (!(selection.isEmpty() || selection.contains(QPoint(x, y))))
         return;
 
@@ -90,8 +90,8 @@ void TilePainter::drawCells(int x, int y, TileLayer *tileLayer)
         return;
 
     foreach (const QRect &rect, region.rects()) {
-        for (int _x = rect.left(); _x <= rect.right(); ++_x) {
-            for (int _y = rect.top(); _y <= rect.bottom(); ++_y) {
+        for (int _y = rect.top(); _y <= rect.bottom(); ++_y) {
+            for (int _x = rect.left(); _x <= rect.right(); ++_x) {
                 const Cell &cell = tileLayer->cellAt(_x - x, _y - y);
                 if (cell.isEmpty())
                     continue;
@@ -122,8 +122,8 @@ void TilePainter::drawStamp(const TileLayer *stamp,
     const QRect regionBounds = region.boundingRect();
 
     foreach (const QRect &rect, region.rects()) {
-        for (int _x = rect.left(); _x <= rect.right(); ++_x) {
-            for (int _y = rect.top(); _y <= rect.bottom(); ++_y) {
+        for (int _y = rect.top(); _y <= rect.bottom(); ++_y) {
+            for (int _x = rect.left(); _x <= rect.right(); ++_x) {
                 const int stampX = (_x - regionBounds.left()) % w;
                 const int stampY = (_y - regionBounds.top()) % h;
                 const Cell &cell = stamp->cellAt(stampX, stampY);
@@ -256,7 +256,7 @@ QRegion TilePainter::computeFillRegion(const QPoint &fillOrigin) const
 
 bool TilePainter::isDrawable(int x, int y) const
 {
-    const QRegion &selection = mMapDocument->tileSelection();
+    const QRegion &selection = mMapDocument->selectedArea();
     if (!(selection.isEmpty() || selection.contains(QPoint(x, y))))
         return false;
 
@@ -274,7 +274,7 @@ QRegion TilePainter::paintableRegion(const QRegion &region) const
     const QRegion bounds = QRegion(mTileLayer->bounds());
     QRegion intersection = bounds.intersected(region);
 
-    const QRegion &selection = mMapDocument->tileSelection();
+    const QRegion &selection = mMapDocument->selectedArea();
     if (!selection.isEmpty())
         intersection &= selection;
 

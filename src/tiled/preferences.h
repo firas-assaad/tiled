@@ -24,7 +24,7 @@
 #include <QObject>
 #include <QColor>
 
-#include "mapwriter.h"
+#include "map.h"
 #include "objecttypes.h"
 
 class QSettings;
@@ -45,18 +45,19 @@ public:
     static void deleteInstance();
 
     bool showGrid() const { return mShowGrid; }
-    bool showSecondaryGrid() const { return mShowSecondaryGrid; }
+    bool showTileObjectOutlines() const { return mShowTileObjectOutlines; }
+    bool showTileAnimations() const { return mShowTileAnimations; }
     bool snapToGrid() const { return mSnapToGrid; }
+    bool snapToFineGrid() const { return mSnapToFineGrid; }
     QColor gridColor() const { return mGridColor; }
-    QColor secondaryGridColor() const { return mSecondaryGridColor; }
-    int secondaryGridWidth() const { return mSecondaryGridWidth; }
-    int secondaryGridHeight() const { return mSecondaryGridHeight; }
+    int gridFine() const { return mGridFine; }
+    qreal objectLineWidth() const { return mObjectLineWidth; }
 
     bool highlightCurrentLayer() const { return mHighlightCurrentLayer; }
     bool showTilesetGrid() const { return mShowTilesetGrid; }
 
-    MapWriter::LayerDataFormat layerDataFormat() const;
-    void setLayerDataFormat(MapWriter::LayerDataFormat layerDataFormat);
+    Map::LayerDataFormat layerDataFormat() const;
+    void setLayerDataFormat(Map::LayerDataFormat layerDataFormat);
 
     bool dtdEnabled() const;
     void setDtdEnabled(bool enabled);
@@ -85,6 +86,9 @@ public:
     bool automappingDrawing() const { return mAutoMapDrawing; }
     void setAutomappingDrawing(bool enabled);
 
+    QString mapsDirectory() const;
+    void setMapsDirectory(const QString &path);
+
     /**
      * Provides access to the QSettings instance to allow storing/retrieving
      * arbitrary values. The naming style for groups and keys is CamelCase.
@@ -93,23 +97,25 @@ public:
 
 public slots:
     void setShowGrid(bool showGrid);
-    void setShowSecondaryGrid(bool showGrid);
+    void setShowTileObjectOutlines(bool enabled);
+    void setShowTileAnimations(bool enabled);
     void setSnapToGrid(bool snapToGrid);
+    void setSnapToFineGrid(bool snapToFineGrid);
     void setGridColor(QColor gridColor);
-    void setSecondaryGridColor(QColor gridColor);
-    void setSecondaryGridWidth(int width);
-    void setSecondaryGridHeight(int height);
+    void setGridFine(int gridFine);
+    void setObjectLineWidth(qreal lineWidth);
     void setHighlightCurrentLayer(bool highlight);
     void setShowTilesetGrid(bool showTilesetGrid);
 
 signals:
     void showGridChanged(bool showGrid);
-    void showSecondaryGridChanged(bool showSecondaryGrid);
+    void showTileObjectOutlinesChanged(bool enabled);
+    void showTileAnimationsChanged(bool enabled);
     void snapToGridChanged(bool snapToGrid);
+    void snapToFineGridChanged(bool snapToFineGrid);
     void gridColorChanged(QColor gridColor);
-    void secondaryGridColorChanged(QColor gridColor);
-    void secondaryGridWidthChanged(int width);
-    void secondaryGridHeightChanged(int height);
+    void gridFineChanged(int gridFine);
+    void objectLineWidthChanged(qreal lineWidth);
     void highlightCurrentLayerChanged(bool highlight);
     void showTilesetGridChanged(bool showTilesetGrid);
 
@@ -117,23 +123,32 @@ signals:
 
     void objectTypesChanged();
 
+    void mapsDirectoryChanged();
+
 private:
     Preferences();
     ~Preferences();
 
+    bool boolValue(const char *key, bool def = false) const;
+    QColor colorValue(const char *key, const QColor &def = QColor()) const;
+    QString stringValue(const char *key, const QString &def = QString()) const;
+    int intValue(const char *key, int defaultValue) const;
+    qreal realValue(const char *key, qreal defaultValue) const;
+
     QSettings *mSettings;
 
     bool mShowGrid;
-    bool mShowSecondaryGrid;
+    bool mShowTileObjectOutlines;
+    bool mShowTileAnimations;
     bool mSnapToGrid;
+    bool mSnapToFineGrid;
     QColor mGridColor;
-    QColor mSecondaryGridColor;
-    int mSecondaryGridWidth;
-    int mSecondaryGridHeight;
+    int mGridFine;
+    qreal mObjectLineWidth;
     bool mHighlightCurrentLayer;
     bool mShowTilesetGrid;
 
-    MapWriter::LayerDataFormat mLayerDataFormat;
+    Map::LayerDataFormat mLayerDataFormat;
     bool mDtdEnabled;
     QString mLanguage;
     bool mReloadTilesetsOnChange;
@@ -141,6 +156,8 @@ private:
     ObjectTypes mObjectTypes;
 
     bool mAutoMapDrawing;
+
+    QString mMapsDirectory;
 
     static Preferences *mInstance;
 };

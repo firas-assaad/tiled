@@ -1,6 +1,6 @@
 /*
  * mapscene.h
- * Copyright 2008-2011, Thorbjørn Lindeijer <thorbjorn@lindeijer.nl>
+ * Copyright 2008-2013, Thorbjørn Lindeijer <thorbjorn@lindeijer.nl>
  * Copyright 2008, Roderic Morris <roderic@ccs.neu.edu>
  * Copyright 2009, Edward Hutchins <eah1@yahoo.com>
  * Copyright 2010, Jeff Bland <jksb@member.fsf.org>
@@ -31,8 +31,10 @@
 
 namespace Tiled {
 
+class ImageLayer;
 class Layer;
 class MapObject;
+class ObjectGroup;
 class Tileset;
 
 namespace Internal {
@@ -109,22 +111,6 @@ public:
 signals:
     void selectedObjectItemsChanged();
 
-public slots:
-    /**
-     * Sets whether the tile grid is visible.
-     */
-    void setGridVisible(bool visible);
-
-    /**
-     * Sets whether the secondary tile grid is visible.
-     */
-    void setSecondaryGridVisible(bool visible);
-
-    /**
-     * Sets whether the current layer should be highlighted.
-     */
-    void setHighlightCurrentLayer(bool highlightCurrentLayer);
-
 protected:
     /**
      * QGraphicsScene::drawForeground override that draws the tile grid.
@@ -136,6 +122,7 @@ protected:
      */
     bool event(QEvent *event);
 
+    void keyPressEvent(QKeyEvent *event);
     void mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent);
     void mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent);
@@ -143,6 +130,15 @@ protected:
     void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
 
 private slots:
+    void setGridVisible(bool visible);
+    void setObjectLineWidth(qreal lineWidth);
+    void setShowTileObjectOutlines(bool enabled);
+
+    /**
+     * Sets whether the current layer should be highlighted.
+     */
+    void setHighlightCurrentLayer(bool highlightCurrentLayer);
+
     /**
      * Refreshes the map scene.
      */
@@ -162,9 +158,15 @@ private slots:
     void layerRemoved(int index);
     void layerChanged(int index);
 
-    void objectsAdded(const QList<MapObject*> &objects);
+    void objectGroupChanged(ObjectGroup *objectGroup);
+    void imageLayerChanged(ImageLayer *imageLayer);
+
+    void tilesetTileOffsetChanged(Tileset *tileset);
+
+    void objectsInserted(ObjectGroup *objectGroup, int first, int last);
     void objectsRemoved(const QList<MapObject*> &objects);
     void objectsChanged(const QList<MapObject*> &objects);
+    void objectsIndexChanged(ObjectGroup *objectGroup, int first, int last);
 
     void updateSelectedObjectItems();
     void syncAllObjectItems();
@@ -180,7 +182,8 @@ private:
     AbstractTool *mSelectedTool;
     AbstractTool *mActiveTool;
     bool mGridVisible;
-    bool mSecondaryGridVisible;
+    qreal mObjectLineWidth;
+    bool mShowTileObjectOutlines;
     bool mHighlightCurrentLayer;
     bool mUnderMouse;
     Qt::KeyboardModifiers mCurrentModifiers;
